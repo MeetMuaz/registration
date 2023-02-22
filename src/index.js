@@ -7,6 +7,7 @@ require("./app/Config/database").connect();
 
 // import modules
 const express = require('express');
+const bodyParser = require('body-parser');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
@@ -23,6 +24,10 @@ app.use(cors());
 
 // enabling helmet for additional layer of security
 app.use(helmet());
+
+// using bodyParser to parse JSON bodies into JS objects
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 // adding morgan to log HTTP requests
 app.use(morgan('combined'));

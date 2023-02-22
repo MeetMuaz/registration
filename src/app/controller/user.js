@@ -1,20 +1,21 @@
 const User = require("../model/User");
 const bcrypt = require("bcrypt");
-const joi = require('joi');
+const Joi = require('Joi');
 
 //USER REGISTER
 exports.userRegister = async (req, res) => {
   try {
 
-    // joi validator
-    const userSchema = joi.object({
-      firstname: joi.string().min(3).max(30).required(),
-      lastname: joi.string().min(3).max(30).required(),
-      username: joi.string().min(3).max(30).required(),
-      email: joi.string().email().required(),
-      password: joi.string().min(6).max(30).alphanum().required(),
-      confirmPassword: joi.ref("password")
+    // Joi validator
+    const userSchema = Joi.object({
+      firstname: Joi.string().min(3).max(30).required(),
+      lastname: Joi.string().min(3).max(30).required(),
+      username: Joi.string().min(3).max(30).required(),
+      email: Joi.string().email().required(),
+      password: Joi.string().min(6).max(30).required(),
+      confirmPassword: Joi.ref("password")
     })
+
 
     // check error
     const { error } = userSchema.validate(req.body, {
@@ -23,7 +24,7 @@ exports.userRegister = async (req, res) => {
 
     // return error from fileds
     if (error) return res.status(400).json(error.details[0].message);
-
+    
     //check if email exists
     const emailExists = await User.findOne({ email: req.body.email });
     emailExists && res.status(400).json("email already exists!");
@@ -53,16 +54,17 @@ exports.userRegister = async (req, res) => {
 
 //USER LOGIN
 exports.userLogin = async (req, res) => {
+
+  // Joi validator
+  const userSchema = Joi.object({
+    email: Joi.string().email().required(),
+    password: Joi.string().required(),
+  })
+
   try {
 
-    // joi validator
-    const userSchema = joi.object({
-      email: joi.string().email().required(),
-      password: joi.string().required(),
-    })
-
     // check error
-    const { error } = userSchema.validate(req.body, {
+    const { error, value } = userSchema.validate(req.body, {
       abortEarly: false,
     })
 
