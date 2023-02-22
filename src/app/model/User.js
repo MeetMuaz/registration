@@ -4,24 +4,21 @@ const UserSchema = new mongoose.Schema(
   {
     firstname: {
       type: String,
-      required: true,
     },
     lastname: {
       type: String,
-      required: true,
     },
     username: {
         type: String,
-        require: true
     },
     email: {
       type: String,
-      required: true,
     },
     password: {
       type: String,
-      required: true,
     },
+    resetPasswordToken: String,
+    resetPasswordExpires: Date,
   },
   { timestamps: true }
 );
