@@ -15,9 +15,9 @@ exports.userRegister = async (req, res) => {
       username: Joi.string().min(3).max(30).required(),
       email: Joi.string().email().required(),
       password: Joi.string().min(6).max(30).required(),
-      confirmpassword: Joi.ref("password"),
+      confirmpassword: Joi.string().valid(Joi.ref('password')).required(),
     })
-
+    // Joi.ref("password")
 
     // check error
     const { error } = userSchema.validate(req.body, {
@@ -164,7 +164,7 @@ exports.resetPassword = async (req, res) => {
 
     const userSchema = Joi.object({
       password: Joi.string().min(6).max(30).required(),
-      confirmPassword: Joi.ref("password")
+      confirmpassword: Joi.string().valid(Joi.ref('password')).required(),
     })
 
 
