@@ -18,6 +18,6 @@ module.exports = function(app) {
     app.route('/user/forgot-password')
         .post(userController.forgotPassword);
     
-    app.route('user/reset-password/:token')
+    app.route('/user/reset-password/:token')
         .get(userController.resetPassword);
 };

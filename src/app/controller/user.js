@@ -161,6 +161,7 @@ exports.forgotPassword = async (req, res) => {
 exports.resetPassword = async (req, res) => {
 
   try {
+    const { token } = req.params;
 
     const userSchema = Joi.object({
       password: Joi.string().min(6).max(30).required(),
@@ -176,13 +177,13 @@ exports.resetPassword = async (req, res) => {
     // return error from fileds
     if (error) return res.status(400).json(error.details[0].message);
 
-    const { token } = req.params;
     const { password } = req.body;
 
     const user = await User.findOne({
       resetPasswordToken: token,
       resetPasswordExpires: { $gt: Date.now() },
     });
+
 
     if (!user) {
       return res.status(400).json('Invalid or expired token. Please try again.');
@@ -195,7 +196,7 @@ exports.resetPassword = async (req, res) => {
     await user.save();
 
     res.json('Your password has been reset.');
-    
+   
   } catch (err) {
     res.status(500).json(err);
   }
