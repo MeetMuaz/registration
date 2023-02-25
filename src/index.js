@@ -11,6 +11,8 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const passport = require('passport');
+const session = require('express-session');
 let routes = require("./app/routes/routes");
 
 // defining the Express app
@@ -31,6 +33,17 @@ app.use(bodyParser.json());
 
 // adding morgan to log HTTP requests
 app.use(morgan('combined'));
+
+// enable session for authentication
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false
+  }));
+  
+app.use(passport.initialize());
+app.use(passport.session());
+  
 
 // defining an endpoint to return all controllers
 routes(app);
