@@ -15,6 +15,9 @@ module.exports = function(app) {
     app.route('/user/register')
         .post(userController.userRegister);
 
+    app.route('/user/logout')
+        .get(userController.userLogout);
+
     app.route('/user/forgot-password')
         .post(userController.forgotPassword);
     

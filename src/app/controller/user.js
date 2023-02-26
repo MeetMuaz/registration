@@ -1,8 +1,15 @@
+//jshint esversion:6
 const User = require("../model/User");
 const bcrypt = require("bcrypt");
 const Joi = require('Joi');
 const crypto = require('crypto');
-const nodemailer = require('nodemailer')
+const nodemailer = require('nodemailer');
+const passport = require("passport");
+
+// serialize and deserialize users
+passport.use(User.createStrategy());
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 //USER REGISTER
 exports.userRegister = async (req, res) => {
@@ -26,25 +33,26 @@ exports.userRegister = async (req, res) => {
     // return error from fileds
     if (error) return res.status(400).json(error.details[0].message);
 
-    const userBody = new User({
+    const user = new User({
       firstname: req.body.firstname,
       lastname: req.body.lastname,
       username: req.body.username,
       email: req.body.email
     });
 
-    // use email and password for auth
-    passport.use(new LocalStrategy({ usernameField: 'email' }, User.authenticate()));
-
-    // create new user with hashed password
-    User.register(userBody, req.body.password, (err, user) => {
-      passport.authenticate("local")(req, res, function(){
-        res.status(200).json(user);
-      });
+    User.register(user, req.body.password, function(err, user){
+      if (err) {
+        res.status(400).json(err);
+      } else {
+        passport.authenticate("local")(req, res, function(){
+          res.status(200).json(user);
+        });
+      }
     });
 
   } catch (err) {
-    console.log(err);
+
+    res.status(500).json(err);
 
   }
 }
@@ -69,26 +77,32 @@ exports.userLogin = async (req, res) => {
     // return error from fileds
     if (error) return res.status(400).json(error.details[0].message);
 
-
-    // use email and password for auth
-    passport.use(new LocalStrategy({ usernameField: 'email' }, User.authenticate()));
-
-    const userBody = new User({
+    const user = new User({
       email: req.body.email,
       password: req.body.password
     });
 
-    req.login(userBody, function(err){
-      app.post('/login', passport.authenticate('local'), function(req, res) {
-        res.status(200).json(userBody);
-      });
+
+    req.login(user, function (err, user){
+      if (err) {
+        res.status(400).json(err);
+        console.log(err);
+      } else {
+        passport.authenticate("local")(req, res, function(){
+          res.status(200).json(user);
+        });
+      }
     });
 
-    
-    
   } catch (err) {
     res.status(500).json(err);
   }
+}
+
+
+// USER LOGOUT
+exports.userLogout = async function (req, res) {
+  req.logout();
 }
 
 //FORGOT PASSWORD
@@ -149,7 +163,7 @@ exports.forgotPassword = async (req, res) => {
 
     await transporter.sendMail(mailOptions);
 
-    res.status(500).json('An email has been sent to the provided email with further instructions.');
+    res.status(200).json('An email has been sent to the provided email with further instructions.');
 
   } catch (err) {
     res.status(500).json(err);
